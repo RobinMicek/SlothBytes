@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 public final class Decryptor {
 
-    private LinkedList<HashMap<String, Object>> message = new LinkedList<>();
+    private final LinkedList<HashMap<String, Object>> message = new LinkedList<>();
 
     public String spaceMessage(String encryptedMessage) {
         decryptMesageParts(encryptedMessage);
@@ -21,6 +21,11 @@ public final class Decryptor {
         boolean isEmbeded = false;
 
         for (Character c : message.toCharArray()) {
+            if (!isEmbeded) {
+                currentPartString = "";
+                currentPartNumber = 0;
+            }
+
             if  (c == '[') {
                 isEmbeded = true;
                 currentPartString = "";
@@ -29,14 +34,13 @@ public final class Decryptor {
             else if (c == ']') {
                 isEmbeded = false;
                 storeMessagePart(currentPartString, currentPartNumber);
-            }
-            else if (Character.isDigit(c)) currentPartNumber = Integer.parseInt(currentPartString + "" + c);
-            else currentPartString = currentPartString + c;
-
-            if (!isEmbeded) {
-                storeMessagePart(currentPartString, 1);
                 currentPartString = "";
+                currentPartNumber = 0;
             }
+            else if (Character.isDigit(c)) currentPartNumber = currentPartNumber * 10 + Integer.parseInt(c.toString());
+            else currentPartString += c;
+
+            if (!isEmbeded && !currentPartString.isEmpty()) storeMessagePart(currentPartString, 1);
         }
     }
 
